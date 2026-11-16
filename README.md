@@ -21,3 +21,10 @@ En GitHub > Settings > Pages, selecciona Deploy from a branch, main y /(root), s
 
 ## Créditos
 Fotografías de muestra de Unsplash. Sustituir por imágenes reales antes de abrir la tienda. La mascota incluida es una ilustración original de perrito estilizado, no un recurso oficial de Peanuts.
+
+## Versión 2
+- Catálogo: Vestidos largos, Vestidos cortos, Top, Lencería, Ropa interior, Trajes de baño, Accesorios y Maquillajes.
+- Gestión en `admin.html`, enlazada desde la flor ✿. Todavía no tiene autenticación.
+- Términos y condiciones provisionales en `terminos.html`.
+- Mascota Snoopy mediante URL suministrada por el propietario; si falla la carga, se muestra una ilustración alternativa `images/mascota.svg`.
+- Para ver en la tienda cambios del panel demo, abre la tienda en el mismo navegador y recarga. No hay sincronización entre dispositivos.
