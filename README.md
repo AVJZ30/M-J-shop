@@ -37,3 +37,11 @@ Fotografías de muestra de Unsplash. Sustituir por imágenes reales antes de abr
 - Panel permite elegir archivos de imagen para previsualización local. No son subidas públicas al hosting; las imágenes deben publicarse en `images/` o en un servicio de almacenamiento para compartirlas.
 - Favicon y logo: sección de previsualización de archivos en admin. Para favicon real de todos los visitantes, publicar iconos en `favicon/`.
 - Foto original de la marca: `images/logo-original.svg` cuando esté disponible; respaldo `images/logo.svg`.
+
+
+## Actualización v4
+- Los favicons deben subirse al repositorio GitHub en `favicon/`; vinculados los favicon PNG, ICO, Apple Touch Icon y webmanifest.
+- Admin gestiona unidades en stock (3 unidades predeterminadas para productos demo sin inventario).
+- Agregar desde una página de producto permanece en esa misma página y confirma la acción allí.
+- Se retiró del panel la subida local de favicon y logo; se retiró el WhatsApp directo de la ficha.
+- Este stock sigue siendo exclusivamente demostrativo: **no hay reservas entre dispositivos** sin backend compartido.
