@@ -1,17 +1,17 @@
 // M&J SHOP — Demo frontend. NO INVENTORY LOCKING across visitors without server.
 const STORAGE='mjshop-demo-products-v1', CART_STORAGE='mjshop-demo-cart-v1';
 const stock=[
-{id:'mj-101',name:'Blusa romántica',category:'Top',size:'S / M',price:16.50,status:'available',image:'https://images.unsplash.com/photo-1564257577-7cadc8a3b5c7?w=800&q=80&auto=format&fit=crop',description:'Ligera, suave y con detalles delicados.'},
+{id:'mj-101',name:'Top romántico',category:'Top',size:'S / M',price:16.50,status:'available',image:'https://images.unsplash.com/photo-1564257577-7cadc8a3b5c7?w=800&q=80&auto=format&fit=crop',description:'Ligera, suave y con detalles delicados.'},
 {id:'mj-102',name:'Vestido florecitas',category:'Vestidos cortos',size:'M',price:24.00,status:'available',image:'https://images.unsplash.com/photo-1515372039744-b8f02a3ae446?w=800&q=80&auto=format&fit=crop',description:'Perfecto para un día especial.'},
-{id:'mj-103',name:'Conjunto casual',category:'Vestidos largos',size:'S',price:29.50,status:'available',image:'https://images.unsplash.com/photo-1483985988355-763728e1935b?w=800&q=80&auto=format&fit=crop',description:'Cómodo y precioso.'},
-{id:'mj-104',name:'Blusa de encaje',category:'Top',size:'L',price:18.00,status:'available',image:'https://images.unsplash.com/photo-1551803091-e20673f15770?w=800&q=80&auto=format&fit=crop',description:'Un básico muy especial.'},
+{id:'mj-103',name:'Vestido largo casual',category:'Vestidos largos',size:'S',price:29.50,status:'available',image:'https://images.unsplash.com/photo-1483985988355-763728e1935b?w=800&q=80&auto=format&fit=crop',description:'Cómodo y precioso.'},
+{id:'mj-104',name:'Top de encaje',category:'Top',size:'L',price:18.00,status:'available',image:'https://images.unsplash.com/photo-1551803091-e20673f15770?w=800&q=80&auto=format&fit=crop',description:'Un básico muy especial.'},
 {id:'mj-105',name:'Vestido de verano',category:'Vestidos cortos',size:'S / M',price:26.00,status:'available',image:'https://images.unsplash.com/photo-1496747611176-843222e1e57c?w=800&q=80&auto=format&fit=crop',description:'Lindo para cualquier ocasión.'},
-{id:'mj-106',name:'Look de fin de semana',category:'Vestidos largos',size:'M',price:32.00,status:'available',image:'https://images.unsplash.com/photo-1539109136881-3be0616acf4b?w=800&q=80&auto=format&fit=crop',description:'Un look que combina con todo.'},
-{id:'mj-107',name:'Blusita rosa',category:'Top',size:'S',price:15.00,status:'sold',image:'https://images.unsplash.com/photo-1485968579580-b6d095142e6e?w=800&q=80&auto=format&fit=crop',description:'Ropita que ya encontró dueña.'},
+{id:'mj-106',name:'Vestido largo de temporada',category:'Vestidos largos',size:'M',price:32.00,status:'available',image:'https://images.unsplash.com/photo-1539109136881-3be0616acf4b?w=800&q=80&auto=format&fit=crop',description:'Un look que combina con todo.'},
+{id:'mj-107',name:'Top rosa',category:'Top',size:'S',price:15.00,status:'sold',image:'https://images.unsplash.com/photo-1485968579580-b6d095142e6e?w=800&q=80&auto=format&fit=crop',description:'Ropita que ya encontró dueña.'},
 {id:'mj-108',name:'Vestido elegante',category:'Vestidos cortos',size:'M',price:34.00,status:'sold',image:'https://images.unsplash.com/photo-1539008835657-9e8e9680c956?w=800&q=80&auto=format&fit=crop',description:'Ropita que ya encontró dueña.'}
 ];
 const $=s=>document.querySelector(s); const safeParse=(s,fallback)=>{try{const v=JSON.parse(s);return Array.isArray(v)?v:fallback}catch{return fallback}};
-let products=safeParse(localStorage.getItem(STORAGE),stock.map(x=>({...x})));let cart=safeParse(localStorage.getItem(CART_STORAGE),[]);let filter='all',query='';
+let products=safeParse(localStorage.getItem(STORAGE),stock.map(x=>({...x})));let cart=safeParse(localStorage.getItem(CART_STORAGE),[]);const categoryMigration={'Blusas':'Top','Vestidos':'Vestidos cortos','Conjuntos':'Vestidos largos'};products=products.map(p=>({...p,category:categoryMigration[p.category]||p.category}));let filter='all',query='';
 const usd=n=>new Intl.NumberFormat('en-US',{style:'currency',currency:'USD'}).format(Number(n)||0);
 const persist=()=>{localStorage.setItem(STORAGE,JSON.stringify(products));localStorage.setItem(CART_STORAGE,JSON.stringify(cart))};
 const escapeHtml=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
