@@ -36,4 +36,4 @@ Fotografías de muestra de Unsplash. Sustituir por imágenes reales antes de abr
 - Hero dinámico: presenta automáticamente la última prenda disponible subida en el navegador de la demostración; al conectar backend se actualizará para todos los usuarios.
 - Panel permite elegir archivos de imagen para previsualización local. No son subidas públicas al hosting; las imágenes deben publicarse en `images/` o en un servicio de almacenamiento para compartirlas.
 - Favicon y logo: sección de previsualización de archivos en admin. Para favicon real de todos los visitantes, publicar iconos en `favicon/`.
-- Foto original de la marca: `images/logo-original.png` cuando esté disponible; respaldo `images/logo.svg`.
+- Foto original de la marca: `images/logo-original.svg` cuando esté disponible; respaldo `images/logo.svg`.
