@@ -1,0 +1,1 @@
+Sube aquí favicon.ico, favicon-16x16.png, favicon-32x32.png, apple-touch-icon.png, android-chrome-192x192.png y android-chrome-512x512.png. Los archivos nuevos publicados en GitHub requieren enlazarse en el head de las páginas o integrar un backend de subidas.
