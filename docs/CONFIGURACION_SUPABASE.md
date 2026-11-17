@@ -1,51 +1,14 @@
-# M&J Shop — Activación segura de Supabase
+# Activación de M&J Shop con UN archivo SQL
 
-Proyecto elegido: `https://jqvcsggwnhqjvmbplwhv.supabase.co`.
+Archivo único: [`supabase/SETUP_MJ_SHOP.sql`](../supabase/SETUP_MJ_SHOP.sql).
 
-## Paso 1: SQL
-Abre **Supabase → SQL Editor → New Query**, copia el contenido íntegro de
-[`supabase/SETUP_MJ_SHOP.sql`](../supabase/SETUP_MJ_SHOP.sql) y ejecútalo.
-La conexión a este proyecto NO está autorizada desde ChatGPT, por lo que debes realizar este paso manualmente.
+1. En **Supabase → Authentication → Users**, crea una cuenta para la administradora con el correo elegido y una **contraseña nueva y segura**. No introduzcas contraseñas en código SQL, ni en GitHub. Supabase Auth gestiona el hash y la recuperación de contraseñas.
+2. Ve a **SQL Editor → New Query** y pega **todo el contenido del archivo único**. Haz clic en **Run**.
+3. El script crea tablas, políticas, categoría inicial, bucket de imágenes, funciones de consulta/reserva y autoriza automáticamente **la cuenta que coincida con el correo configurado dentro del SQL**, siempre que exista y su email esté confirmado.
+4. Abre [panel de administración](https://shopmj.netlify.app/admin.html) e inicia sesión.
 
-## Paso 2: crear administrador (contraseña privada)
-En **Authentication → Users → Add user**, crea un usuario con correo y contraseña segura.
-La contraseña la gestiona Supabase Auth mediante hash. No la escribas en SQL, GitHub ni JavaScript.
-Copia el UUID (User ID) que muestra Supabase para esa cuenta.
+Si todavía no existe o no está confirmado el usuario cuando ejecutes el SQL, verás un aviso; el esquema se instala igual y puedes **volver a ejecutar el mismo SQL después de crear/confirmar el usuario**.
 
-Ejecuta esta instrucción en SQL Editor, reemplazando el UUID:
+Las funciones de reservas transaccionales requieren pruebas de concurrencia antes de vender y protección antiabuso para compradores anónimos. La tienda actual consulta datos cada 8 segundos sin reconstruir el DOM cuando solo cambia el stock.
 
-```sql
-insert into public.mj_admins(user_id)
-values ('REEMPLAZA_POR_EL_UUID_DEL_USUARIO')
-on conflict (user_id) do nothing;
-```
-
-Después entra a `https://shopmj.netlify.app/admin.html` usando ese correo y contraseña.
-Si otro usuario inicia sesión pero no aparece en `mj_admins`, el sistema le deniega el acceso.
-
-## Paso 3: subir productos
-Desde Administración agrega nombre, categoría, talla, precio, unidades, fotografía y visibilidad.
-Los productos marcados **Oculto** no aparecen ni en la tienda ni en la ficha pública.
-Puedes subir imágenes JPG, PNG o WebP (máximo 5 MB) a Supabase Storage.
-
-## Inventario en tiempo real (prototipo)
-Al añadir unidades, el navegador hace una llamada transaccional a `mj_reserve_cart`.
-La función bloquea las filas de productos en PostgreSQL y solo permite reservar el stock libre.
-Los visitantes ven cambios de unidades cada ~8 segundos sin recargar la página completa.
-Cada selección queda **reservada por 8 minutos**, y luego caduca.
-El carrito se recuerda en este navegador, pero debe reservarse de nuevo al recargar.
-
-**Advertencia de producción:** Al ser público y sin cuentas de compradores, el RPC de reserva
-puede sufrir abuso (personas o bots pueden bloquear stock temporalmente creando sesiones).
-Antes de abrir ventas reales, implementar CAPTCHA y límites por IP/dispositivo mediante una
-Edge Function segura, controles para confirmar ventas y cancelar reservas,
-registro de pedidos y pruebas simultáneas. El clic de WhatsApp NO procesa un pago.
-No subir claves `service_role` ni contraseñas al frontend.
-
-## Si aparece "La tienda aún no está configurada"
-Comprueba: SQL ejecutado, usuario asignado a `mj_admins`, políticas RLS activas,
-Data API accesible y que Netlify haya publicado el último commit de `main`.
-
-## Claves
-La `sb_publishable_...` es una clave **pública**, válida para el navegador con RLS.
-Las contraseñas reales pertenecen solo a Supabase Auth y nunca deben escribirse en el repo.
+La conexión Supabase del usuario no autoriza a ChatGPT a ejecutar consultas en ese proyecto: estos pasos deben completarse en SQL Editor.
