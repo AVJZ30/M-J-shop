@@ -9,3 +9,11 @@ La versión actualizada del SQL elimina `mj_reserve_cart` y `mj_holds` de versio
 Para autorizar a la administradora, crea su usuario en **Authentication → Users** con correo y una contraseña privada y segura; después ejecuta el SQL único. La autorización por correo solo se aplica cuando el usuario existe y su correo está confirmado. La contraseña nunca debe almacenarse en GitHub ni en tablas públicas.
 
 El botón «Realizar pedido» prepara un mensaje de WhatsApp. **No registra una venta ni descuenta stock**; la encargada deberá confirmar la disponibilidad y actualizar manualmente el inventario. Al no existir reserva exclusiva, dos personas pueden solicitar la misma unidad antes de que la encargada actualice el stock.
+
+## Colores disponibles por prenda
+
+Si la base de datos ya está creada, ejecuta **solo** [supabase/AGREGAR_COLORES.sql](../supabase/AGREGAR_COLORES.sql) en el SQL Editor de Supabase. No borra productos existentes; agrega `mj_products.colors` como arreglo JSONB y recrea la función pública con los colores.
+
+En el panel de administración puedes añadir hasta 20 colores por prenda, indicando nombre y tono hexadecimal mediante el selector visual. También puedes quitarlos o editar las opciones guardadas. En la tienda, las muestras muestran el tono real y el cliente selecciona el color antes de añadir la prenda al carrito. Cada color seleccionado se identifica por separado en el carrito y en el pedido de WhatsApp.
+
+**Inventario:** las unidades siguen siendo el stock **total de la prenda**, no un stock individual por color. Agregar artículos no descuenta existencias; solo el administrador actualiza la cantidad en Supabase.
