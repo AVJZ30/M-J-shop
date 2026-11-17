@@ -72,20 +72,7 @@ create policy "admin update products" on public.mj_products for update to authen
 drop policy if exists "admin delete products" on public.mj_products;
 create policy "admin delete products" on public.mj_products for delete to authenticated using((select public.mj_is_admin()));
 
--- SECURITY INVOKER: los artículos ocultos quedan fuera para visitantes.
-create or replace view public.mj_catalog with (security_invoker=true) as
- select p.id,p.name,p.category_id,p.size,p.price,p.description,p.image_url,
- p.stock,p.is_sold,p.is_visible,p.created_at,p.updated_at,
- greatest(0,p.stock-coalesce((
-  select sum(h.qty)::integer from public.mj_holds h
-  where h.product_id=p.id and h.expires_at>now() and (p_session is null or h.session_id<>p_session)
- ),0))::integer as available
- from public.mj_products p;
-grant select on public.mj_catalog to anon,authenticated;
--- View invoker needs privilege to read holds but RLS hides them; use a safe RPC instead.
--- Therefore catalog availability is obtained with the restricted definer function below.
-drop view if exists public.mj_catalog;
-
+-- Catálogo público a través de una función restringida por visibilidad y permisos.
 create or replace function public.mj_public_catalog(p_session uuid default null)
 returns table (
  id uuid,name text,category_id uuid,size text,price numeric,description text,
@@ -113,23 +100,23 @@ declare it record; prod record; already integer; total integer;
 begin
  if p_session is null or p_items is null or jsonb_typeof(p_items)<>'array'
     or jsonb_array_length(p_items)>8 then raise exception 'invalid_cart'; end if;
- if exists(select 1 from jsonb_array_elements(p_items) as e
-   where jsonb_typeof(e->'id')<>'string' or jsonb_typeof(e->'qty')<>'number'
-   or (e->>'qty') !~ '^[1-9][0-9]?$') then raise exception 'invalid_item'; end if;
- if (select coalesce(sum((e->>'qty')::integer),0)
-     from jsonb_array_elements(p_items) e)>10 then raise exception 'cart_limit'; end if;
- if (select count(distinct e->>'id') from jsonb_array_elements(p_items) e)
+ if exists(select 1 from jsonb_array_elements(p_items) as e(value)
+   where jsonb_typeof(e.value->'id')<>'string' or jsonb_typeof(e.value->'qty')<>'number'
+   or (e.value->>'qty') !~ '^[1-9][0-9]?) then raise exception 'invalid_item'; end if;
+ if (select coalesce(sum((e.value->>'qty')::integer),0)
+     from jsonb_array_elements(p_items) as e(value))>10 then raise exception 'cart_limit'; end if;
+ if (select count(distinct e.value->>'id') from jsonb_array_elements(p_items) as e(value))
      <>jsonb_array_length(p_items) then raise exception 'duplicate_items'; end if;
  perform pg_advisory_xact_lock(hashtextextended(p_session::text,42));
  -- Lock each product deterministically, including those previously held by this session.
  perform 1 from public.mj_products
  where id in (
-   select (e->>'id')::uuid from jsonb_array_elements(p_items) e
+   select (e.value->>'id')::uuid from jsonb_array_elements(p_items) as e(value)
    union select product_id from public.mj_holds where session_id=p_session
  ) order by id for update;
  delete from public.mj_holds where session_id=p_session;
- for it in select (e->>'id')::uuid as id,(e->>'qty')::integer as qty
-           from jsonb_array_elements(p_items) e order by 1 loop
+ for it in select (e.value->>'id')::uuid as id,(e.value->>'qty')::integer as qty
+           from jsonb_array_elements(p_items) as e(value) order by 1 loop
    select * into prod from public.mj_products
     where id=it.id and is_visible and not is_sold;
    if not found then raise exception 'not_available'; end if;
@@ -166,8 +153,31 @@ insert into public.mj_categories(name,sort_order) values
  ('Ropa interior',5),('Trajes de baño',6),('Accesorios',7),('Maquillajes',8)
 on conflict(name) do nothing;
 
--- PASO MANUAL DESPUÉS DEL SQL:
--- 1. Supabase > Authentication > Users > Add user (correo + contraseña segura).
--- 2. Copia el UUID del usuario creado.
--- 3. Ejecuta: INSERT INTO public.mj_admins(user_id) VALUES ('UUID-DEL-USUARIO');
--- El password se almacena gestionado/hasheado por Supabase Auth, nunca en una tabla pública.
+-- AUTORIZACIÓN AUTOMÁTICA DE LA CUENTA ADMINISTRADORA EXISTENTE
+-- Debes crear el usuario primero en Supabase > Authentication > Users.
+-- No introduzcas la contraseña en esta consulta ni en archivos públicos.
+do $mj_admin$
+declare
+ v_user uuid;
+begin
+ select id into v_user
+ from auth.users
+ where lower(email)=lower('Mariajveraa2005@gmail.com')
+   and email_confirmed_at is not null
+ limit 1;
+ if v_user is null then
+   raise notice 'Cuenta administradora no encontrada o sin confirmar. Crea/confirma el usuario en Authentication y vuelve a ejecutar este mismo SQL.';
+ else
+   insert into public.mj_admins(user_id) values(v_user)
+   on conflict(user_id) do nothing;
+   raise notice 'Cuenta administradora autorizada.';
+ end if;
+end
+$mj_admin$;
+
+-- Verificación de configuración:
+select 'mj_categories' as recurso,count(*) as registros from public.mj_categories
+union all
+select 'mj_products',count(*) from public.mj_products
+union all
+select 'mj_admins',count(*) from public.mj_admins;
