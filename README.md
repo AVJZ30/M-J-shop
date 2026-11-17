@@ -39,3 +39,6 @@ Los pedidos se preparan para **+593 96 264 9242** con cantidades, precio y URL p
 Los datos anteriores guardados en `localStorage` eran una demostración y **no se importan automáticamente** a la base compartida. Añade los productos reales desde el nuevo panel.
 
 Hecha por [AVJ COMUNITY](https://avjcomunity.com/). Made in Guayaquil.
+
+## Variantes de color
+El panel de administración permite indicar el nombre y el tono de cada color disponible para una prenda. La tienda y la ficha muestran muestras circulares seleccionables; el carrito y WhatsApp incluyen el color elegido. Para bases ya instaladas, ejecuta [la migración de colores](supabase/AGREGAR_COLORES.sql). La disponibilidad sigue siendo una cantidad global gestionada por administración.
