@@ -96,7 +96,7 @@ returns table (
  p.stock,p.is_sold,p.is_visible,p.created_at,
  greatest(0,p.stock-coalesce((
     select sum(h.qty)::integer from public.mj_holds h
-    where h.product_id=p.id and h.expires_at>now()
+    where h.product_id=p.id and h.expires_at>now() and (p_session is null or h.session_id<>p_session)
  ),0))::integer as available
  from public.mj_products p
  where p.is_visible=true or public.mj_is_admin()
