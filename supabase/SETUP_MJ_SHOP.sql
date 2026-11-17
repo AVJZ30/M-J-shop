@@ -68,6 +68,8 @@ create policy "admin delete products" on public.mj_products for delete to authen
 -- Catálogo público a través de una función restringida por visibilidad y permisos.
 -- Inventario controlado exclusivamente por la administración.
 -- El carrito no resta ni reserva stock; los visitantes consultan la cantidad definida por el admin.
+-- Postgres exige eliminar la firma anterior antes de agregar la columna colors al resultado.
+drop function if exists public.mj_public_catalog(uuid);
 create or replace function public.mj_public_catalog(p_session uuid default null)
 returns table (
  id uuid,name text,category_id uuid,size text,price numeric,description text,
