@@ -78,7 +78,7 @@ create or replace view public.mj_catalog with (security_invoker=true) as
  p.stock,p.is_sold,p.is_visible,p.created_at,p.updated_at,
  greatest(0,p.stock-coalesce((
   select sum(h.qty)::integer from public.mj_holds h
-  where h.product_id=p.id and h.expires_at>now()
+  where h.product_id=p.id and h.expires_at>now() and (p_session is null or h.session_id<>p_session)
  ),0))::integer as available
  from public.mj_products p;
 grant select on public.mj_catalog to anon,authenticated;
@@ -86,7 +86,7 @@ grant select on public.mj_catalog to anon,authenticated;
 -- Therefore catalog availability is obtained with the restricted definer function below.
 drop view if exists public.mj_catalog;
 
-create or replace function public.mj_public_catalog()
+create or replace function public.mj_public_catalog(p_session uuid default null)
 returns table (
  id uuid,name text,category_id uuid,size text,price numeric,description text,
  image_url text,stock integer,is_sold boolean,is_visible boolean,
@@ -102,8 +102,8 @@ returns table (
  where p.is_visible=true or public.mj_is_admin()
  order by p.created_at desc
 $$;
-revoke all on function public.mj_public_catalog() from public;
-grant execute on function public.mj_public_catalog() to anon,authenticated;
+revoke all on function public.mj_public_catalog(uuid) from public;
+grant execute on function public.mj_public_catalog(uuid) to anon,authenticated;
 
 -- Reserva transaccional para evitar que dos compras aparten la misma unidad.
 -- Las reservas se reemplazan por carrito y vencen tras 8 minutos.
