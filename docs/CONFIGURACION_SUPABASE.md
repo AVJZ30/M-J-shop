@@ -1,14 +1,11 @@
-# Activación de M&J Shop con UN archivo SQL
+# Configuración de Supabase — M&J Shop
 
-Archivo único: [`supabase/SETUP_MJ_SHOP.sql`](../supabase/SETUP_MJ_SHOP.sql).
+Ejecuta [supabase/SETUP_MJ_SHOP.sql](../supabase/SETUP_MJ_SHOP.sql) en el SQL Editor del proyecto M&J Shop, aunque ya hubieras ejecutado una versión anterior. Es un único SQL que configura tablas, categorías, administradores, acceso privado, fotografías y catálogo.
 
-1. En **Supabase → Authentication → Users**, crea una cuenta para la administradora con el correo elegido y una **contraseña nueva y segura**. No introduzcas contraseñas en código SQL, ni en GitHub. Supabase Auth gestiona el hash y la recuperación de contraseñas.
-2. Ve a **SQL Editor → New Query** y pega **todo el contenido del archivo único**. Haz clic en **Run**.
-3. El script crea tablas, políticas, categoría inicial, bucket de imágenes, funciones de consulta/reserva y autoriza automáticamente **la cuenta que coincida con el correo configurado dentro del SQL**, siempre que exista y su email esté confirmado.
-4. Abre [panel de administración](https://shopmj.netlify.app/admin.html) e inicia sesión.
+**Cambio de inventario:** Solo el administrador modifica el campo **Unidades disponibles** dentro de `admin.html`. Añadir productos al carrito **no reserva ni resta unidades**. La cantidad del catálogo proviene directamente del campo `stock` en Supabase y se actualiza discretamente cada ocho segundos.
 
-Si todavía no existe o no está confirmado el usuario cuando ejecutes el SQL, verás un aviso; el esquema se instala igual y puedes **volver a ejecutar el mismo SQL después de crear/confirmar el usuario**.
+La versión actualizada del SQL elimina `mj_reserve_cart` y `mj_holds` de versiones anteriores, de modo que no queden reservas pendientes afectando a las existencias.
 
-Las funciones de reservas transaccionales requieren pruebas de concurrencia antes de vender y protección antiabuso para compradores anónimos. La tienda actual consulta datos cada 8 segundos sin reconstruir el DOM cuando solo cambia el stock.
+Para autorizar a la administradora, crea su usuario en **Authentication → Users** con correo y una contraseña privada y segura; después ejecuta el SQL único. La autorización por correo solo se aplica cuando el usuario existe y su correo está confirmado. La contraseña nunca debe almacenarse en GitHub ni en tablas públicas.
 
-La conexión Supabase del usuario no autoriza a ChatGPT a ejecutar consultas en ese proyecto: estos pasos deben completarse en SQL Editor.
+El botón «Realizar pedido» prepara un mensaje de WhatsApp. **No registra una venta ni descuenta stock**; la encargada deberá confirmar la disponibilidad y actualizar manualmente el inventario. Al no existir reserva exclusiva, dos personas pueden solicitar la misma unidad antes de que la encargada actualice el stock.
