@@ -1,6 +1,6 @@
 # M&J Shop ♡
 
-Tienda de ropa con catálogo responsive, carrito por unidades, reserva temporal de inventario, fichas individuales y panel de administración protegido. Identidad beige, rosa empolvado y logo M&J Shop. Diseñada para Netlify.
+Tienda de ropa con catálogo adaptable, carrito por unidades, fichas individuales y panel de administración protegido. Identidad beige, rosa empolvado y logo M&J Shop. Diseñada para Netlify.
 
 ## Estado de conexión
 
@@ -26,9 +26,9 @@ Tienda de ropa con catálogo responsive, carrito por unidades, reserva temporal 
 - El correo y la contraseña los verifica Supabase Auth; las contraseñas no se escriben en tablas de productos ni en el código.
 - RLS impide consultar artículos ocultos desde la API pública.
 - Las imágenes se suben a `mj-shop-images` exclusivamente por administradores.
-- Las reservas usan transacciones y bloqueo de filas para evitar sobreventa simultánea.
-- Las reservas caducan a los 8 minutos. Se muestra disponibilidad mediante consultas cada 8 segundos sin recargar la página.
-- Antes de producción con compradores anónimos, es esencial añadir controles antiabuso (rate-limiting/CAPTCHA), confirmación de pedidos y controles de pago.
+- Las existencias son gestionadas manualmente por administración; agregar al carrito no reduce unidades ni crea reservas.
+- La tienda consulta disponibilidad de forma discreta cada ocho segundos, sin recargar toda la página.
+- La confirmación de pedidos y la actualización del inventario se realizan manualmente.
 
 ## WhatsApp
 
