@@ -34,9 +34,12 @@ create table if not exists public.mj_products (
  stock integer not null default 0 check(stock between 0 and 999999),
  is_sold boolean not null default false,
  is_visible boolean not null default true,
+ colors jsonb not null default '[]'::jsonb,
  created_at timestamptz not null default now(),
  updated_at timestamptz not null default now()
 );
+-- Actualización no destructiva para tiendas que ya ejecutaron el SQL.
+alter table public.mj_products add column if not exists colors jsonb not null default '[]'::jsonb;
 create index if not exists mj_products_visible_created on public.mj_products(is_visible,created_at desc);
 alter table public.mj_categories enable row level security;
 alter table public.mj_products enable row level security;
@@ -68,11 +71,11 @@ create policy "admin delete products" on public.mj_products for delete to authen
 create or replace function public.mj_public_catalog(p_session uuid default null)
 returns table (
  id uuid,name text,category_id uuid,size text,price numeric,description text,
- image_url text,stock integer,is_sold boolean,is_visible boolean,
+ image_url text,stock integer,is_sold boolean,is_visible boolean,colors jsonb,
  created_at timestamptz,available integer
 ) language sql stable security definer set search_path='' as $$
  select p.id,p.name,p.category_id,p.size,p.price,p.description,p.image_url,
- p.stock,p.is_sold,p.is_visible,p.created_at,p.stock as available
+ p.stock,p.is_sold,p.is_visible,p.colors,p.created_at,p.stock as available
  from public.mj_products p
  where p.is_visible=true or public.mj_is_admin()
  order by p.created_at desc
