@@ -102,7 +102,7 @@ begin
     or jsonb_array_length(p_items)>8 then raise exception 'invalid_cart'; end if;
  if exists(select 1 from jsonb_array_elements(p_items) as e(value)
    where jsonb_typeof(e.value->'id')<>'string' or jsonb_typeof(e.value->'qty')<>'number'
-   or (e.value->>'qty') !~ '^[1-9][0-9]?) then raise exception 'invalid_item'; end if;
+   or (e.value->>'qty') !~ '^[1-9][0-9]?$') then raise exception 'invalid_item'; end if;
  if (select coalesce(sum((e.value->>'qty')::integer),0)
      from jsonb_array_elements(p_items) as e(value))>10 then raise exception 'cart_limit'; end if;
  if (select count(distinct e.value->>'id') from jsonb_array_elements(p_items) as e(value))
