@@ -60,9 +60,72 @@ function renderSoldInventory(){
  });
  soldList.innerHTML=rows.length?rows.map(({p,variant,kind})=>{
   const label=variant?'<span class="sale-color-dot" style="background:'+variant.hex+'"></span> '+esc(variant.name):'Todos los colores / prenda completa';
-  return '<div class="admin-sale-row"><img src="'+esc(imageUrl(p.image_url))+'" alt=""><div><strong>'+esc(p.name)+'</strong><small>Talla: '+esc(p.size)+'</small><span class="sale-status">'+esc(kind)+' · '+label+'</span></div></div>';
+  const action=variant
+  ?'<button type="button" class="sale-remove-button" data-remove-sold-color="'+esc(variant.name)+'" data-sold-product-id="'+esc(p.id)+'" aria-label="Eliminar color vendido '+esc(variant.name)+' de '+esc(p.name)+'">Eliminar color</button>'
+  :'<button type="button" class="sale-remove-button" data-remove-sold-product="'+esc(p.id)+'" aria-label="Eliminar prenda vendida '+esc(p.name)+'">Eliminar prenda</button>';
+  return '<div class="admin-sale-row"><img src="'+esc(imageUrl(p.image_url))+'" alt=""><div><strong>'+esc(p.name)+'</strong><small>Talla: '+esc(p.size)+'</small><span class="sale-status">'+esc(kind)+' · '+label+'</span></div>'+action+'</div>';
  }).join(''):'<p class="sales-help">Todavía no hay prendas marcadas como vendidas.</p>';
 }
+
+// Solo los productos o colores ya vendidos pueden eliminarse desde esta lista.
+// Se confirma la eliminación permanente para evitar borrados accidentales.
+let removingSold=false;
+async function removeSoldEntry(event){
+ const button=event.target.closest('[data-remove-sold-product],[data-remove-sold-color]');
+ if(!button||removingSold||button.disabled)return;
+ const productId=button.dataset.soldProductId||button.dataset.removeSoldProduct;
+ const color=button.dataset.removeSoldColor||null;
+ const chosen=inventory.find(p=>p.id===productId);
+ if(!chosen)return;
+ const message=color
+  ?'¿Eliminar definitivamente el color vendido "'+color+'" de "'+chosen.name+'"? Los demás colores permanecerán disponibles.'
+  :'¿Eliminar definitivamente la prenda vendida "'+chosen.name+'"? También desaparecerá del catálogo y de Supabase.';
+ if(!confirm(message))return;
+ removingSold=true;
+ button.disabled=true;
+ try{
+  const {data:isAdmin,error:authError}=await supabase.rpc('mj_is_admin');
+  if(authError||!isAdmin)throw Error('Tu sesión no tiene permisos de administración.');
+  // Consultar la versión actual evita modificar una prenda editada en otra sesión.
+  const {data:latest,error:readError}=await supabase.from('mj_products')
+   .select('id,name,colors,is_sold,stock,updated_at,image_url').eq('id',productId).single();
+  if(readError||!latest)throw Error('La prenda ya no existe o no se pudo consultar.');
+  if(color){
+   if(productSold(latest))throw Error('La prenda completa está vendida. Usa Eliminar prenda si deseas borrarla.');
+   const options=Array.isArray(latest.colors)?latest.colors:[];
+   const soldOption=options.find(c=>c&&c.name===color&&c.sold===true);
+   if(!soldOption)throw Error('Ese color ya no está marcado como vendido. Actualiza el panel.');
+   const remainingColors=options.filter(c=>c?.name!==color);
+   const {data, error}=await supabase.from('mj_products')
+    .update({colors:remainingColors,updated_at:new Date().toISOString()})
+    .eq('id',latest.id).eq('updated_at',latest.updated_at).select('id');
+   if(error)throw error;
+   if(!data?.length)throw Error('La prenda cambió mientras la editabas. Actualiza el panel e inténtalo de nuevo.');
+  }else{
+   if(!productSold(latest))throw Error('Esta prenda ya no está marcada como vendida.');
+   const {data,error}=await supabase.from('mj_products').delete()
+    .eq('id',latest.id).eq('updated_at',latest.updated_at).select('id');
+   if(error)throw error;
+   if(!data?.length)throw Error('La prenda cambió mientras la eliminabas. Actualiza el panel e inténtalo de nuevo.');
+  }
+  await loadProducts();
+  window.dispatchEvent(new Event('mj:sale-recorded'));
+  const toast=$('#toast');
+  toast.textContent=color?'Color vendido eliminado. Los otros colores no se modificaron.':'Prenda vendida eliminada de Supabase y del catálogo.';
+  toast.classList.add('show');
+  setTimeout(()=>toast.classList.remove('show'),4300);
+ }catch(e){
+  console.error('No se pudo eliminar el vendido',e);
+  const toast=$('#toast');
+  toast.textContent=e.message||'No se pudo eliminar el elemento vendido.';
+  toast.classList.add('show');
+  setTimeout(()=>toast.classList.remove('show'),4300);
+ }finally{
+  removingSold=false;
+  button.disabled=false;
+ }
+}
+soldList.addEventListener('click',removeSoldEntry);
 
 async function loadProducts(){
  const {data,error}=await supabase.from('mj_products')
