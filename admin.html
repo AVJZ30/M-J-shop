@@ -6,9 +6,15 @@
     <h2>Registrar una venta ♡</h2>
     <p class="sales-help">Selecciona una prenda registrada, su color si corresponde y cuántas unidades se vendieron.</p>
     <form id="saleForm" class="admin-form">
-      <label>Prenda registrada
-        <select id="saleProduct" required><option value="">Selecciona una prenda</option></select>
-      </label>
+      <div class="sale-product-picker">
+        <label for="saleProductTrigger" class="sale-product-label" id="saleProductLabel">Prenda registrada</label>
+        <select id="saleProduct" hidden aria-hidden="true" tabindex="-1"><option value="">Selecciona una prenda</option></select>
+        <button type="button" id="saleProductTrigger" class="sale-product-trigger" aria-haspopup="listbox" aria-expanded="false" aria-controls="saleProductChoices" aria-labelledby="saleProductLabel saleProductTriggerText">
+          <span class="sale-product-trigger-main" id="saleProductTriggerText">Selecciona una prenda</span>
+          <span class="sale-picker-chevron" aria-hidden="true">⌄</span>
+        </button>
+        <div id="saleProductChoices" class="sale-product-choices" role="listbox" aria-labelledby="saleProductLabel" hidden></div>
+      </div>
       <label id="saleColorWrap" hidden>Color vendido
         <select id="saleColor"></select>
       </label>
