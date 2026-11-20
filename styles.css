@@ -102,3 +102,27 @@ a,button,input,select,textarea,[role="button"],.product-photo-link{-webkit-tap-h
 .admin-sales-list .sale-remove-button:hover{background:#f7e9e7}
 .admin-sales-list .sale-remove-button:disabled{opacity:.45;cursor:default}
 @media(max-width:440px){.admin-sales-list .sale-remove-button{margin-left:67px}}
+
+/* Selector de prendas con foto exclusivo del formulario de ventas */
+.admin-sales-card .sale-product-picker{position:relative;min-width:0;margin:14px 0 18px}
+.admin-sales-card .sale-product-label{display:block;margin:0 0 8px;font-size:12px;font-weight:700;color:#775b53}
+.admin-sales-card .sale-product-trigger{width:100%;min-height:76px;display:flex;align-items:center;gap:12px;padding:9px 12px;text-align:left;background:#fff;border:1px solid #ddcec4;border-radius:10px;color:#55433e;transition:border-color .18s,box-shadow .18s}
+.admin-sales-card .sale-product-trigger:hover,.admin-sales-card .sale-product-trigger[aria-expanded="true"]{border-color:#b98e85;box-shadow:0 0 0 3px #ead3cf55}
+.admin-sales-card .sale-product-trigger:focus-visible,.admin-sales-card .sale-product-option:focus-visible{outline:2px solid #b98e85;outline-offset:2px}
+.admin-sales-card .sale-product-trigger-main{display:flex;align-items:center;min-width:0;flex:1;gap:12px;font-size:13px;line-height:1.35}
+.admin-sales-card .sale-product-trigger-main .sale-picker-placeholder{color:#9c877e;font-size:13px}
+.admin-sales-card .sale-picker-thumb{display:block;width:49px;height:57px;flex:none;object-fit:cover;border-radius:6px;background:#f2e7e0;border:1px solid #eee4df}
+.admin-sales-card .sale-picker-copy{display:flex;flex-direction:column;gap:4px;min-width:0;flex:1;text-align:left}
+.admin-sales-card .sale-picker-copy strong{display:block;color:#5e463d;font-size:12px;font-weight:700;line-height:1.4;overflow-wrap:anywhere}
+.admin-sales-card .sale-picker-copy small{display:block;color:#957d71;font-size:11px;line-height:1.4;overflow-wrap:anywhere}
+.admin-sales-card .sale-picker-chevron{font-size:21px;color:#95776c;line-height:1;flex:none;margin-left:auto;transition:transform .15s}
+.admin-sales-card .sale-product-trigger[aria-expanded="true"] .sale-picker-chevron{transform:rotate(180deg)}
+.admin-sales-card .sale-product-choices{position:absolute;top:calc(100% + 7px);left:0;right:0;z-index:45;max-height:min(350px,48dvh);overflow-y:auto;overscroll-behavior:contain;background:#fffefa;border:1px solid #dcc7bc;border-radius:11px;box-shadow:0 14px 34px #58403824;padding:5px}
+.admin-sales-card .sale-product-option{width:100%;display:flex;align-items:center;gap:12px;min-height:70px;padding:7px 9px;border:0;border-radius:7px;background:transparent;text-align:left;color:#5e463d;cursor:pointer}
+.admin-sales-card .sale-product-option:hover,.admin-sales-card .sale-product-option[aria-selected="true"],.admin-sales-card .sale-product-option:focus-visible{background:#f7eee8}
+.admin-sales-card .sale-product-option+.sale-product-option{border-top:1px solid #f3ebe5}
+.admin-sales-card .sale-product-option .sale-picker-copy{gap:3px}
+.admin-sales-card .sale-product-option .sale-picker-thumb{width:47px;height:55px}
+.admin-sales-card .sale-picker-status{display:inline-block;font-size:10px;color:#a06e63;font-weight:700}
+@media(max-width:800px){.admin-sales-card .sale-product-trigger{min-height:76px;padding:8px 10px}.admin-sales-card .sale-product-choices{max-height:min(330px,44dvh)}}
+@media(max-width:420px){.admin-sales-card .sale-product-trigger-main{gap:9px}.admin-sales-card .sale-product-option{gap:9px;padding:6px 7px}.admin-sales-card .sale-picker-copy strong{font-size:12px}.admin-sales-card .sale-picker-copy small{font-size:10px}.admin-sales-card .sale-product-choices{max-height:42dvh}.admin-sales-card .sale-picker-thumb{width:44px;height:53px}}
