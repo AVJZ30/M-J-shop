@@ -127,41 +127,91 @@ a,button,input,select,textarea,[role="button"],.product-photo-link{-webkit-tap-h
 @media(max-width:800px){.admin-sales-card .sale-product-trigger{min-height:76px;padding:8px 10px}.admin-sales-card .sale-product-choices{max-height:min(330px,44dvh)}}
 @media(max-width:420px){.admin-sales-card .sale-product-trigger-main{gap:9px}.admin-sales-card .sale-product-option{gap:9px;padding:6px 7px}.admin-sales-card .sale-picker-copy strong{font-size:12px}.admin-sales-card .sale-picker-copy small{font-size:10px}.admin-sales-card .sale-product-choices{max-height:42dvh}.admin-sales-card .sale-picker-thumb{width:44px;height:53px}}
 
-/* Navegación móvil de administración: cuatro accesos, dos por fila.
-   La vista de computadora y sus paneles originales no se modifican. */
+/* Menú de administración en computadora y celular: dos botones por fila.
+   El formulario original permanece arriba; las otras secciones se despliegan a demanda. */
 .admin-mobile-tabs,.admin-mobile-content{display:none}
+body.admin-mobile-tabs-enabled .admin-panel{
+  display:block;
+  width:100%;
+  max-width:840px;
+  margin:0 auto;
+}
+body.admin-mobile-tabs-enabled .admin-mobile-tabs:not([hidden]){
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:12px;
+  width:100%;
+  max-width:840px;
+  margin:22px auto 15px;
+}
+.admin-mobile-tabs>button{
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  width:100%;
+  min-width:0;
+  min-height:80px;
+  padding:15px 12px;
+  border:1px solid #dfcfc6;
+  border-radius:12px;
+  background:#fffaf6;
+  color:#725a50;
+  font-size:14px;
+  font-weight:700;
+  line-height:1.4;
+  text-align:center;
+  white-space:normal;
+  overflow-wrap:anywhere;
+  box-shadow:0 2px 6px #6d4d380a;
+  transition:background .18s,border-color .18s;
+}
+.admin-mobile-tabs>button:hover,
+.admin-mobile-tabs>button.is-active{
+  background:#f0dfd9;
+  border-color:#ba9186;
+  color:#63463e;
+  box-shadow:inset 0 0 0 1px #c9a39b;
+}
+.admin-mobile-tabs>button:focus-visible{
+  outline:2px solid #b98e85;
+  outline-offset:3px;
+}
+body.admin-mobile-tabs-enabled .admin-mobile-content:not([hidden]){
+  display:block;
+  width:100%;
+  max-width:1040px;
+  min-width:0;
+  margin:0 auto 26px;
+}
+body.admin-mobile-tabs-enabled .admin-mobile-content>section:not([hidden]){
+  display:block;
+  width:100%;
+  min-width:0;
+  padding:24px;
+  border:1px solid var(--line);
+  border-radius:14px;
+  background:#fffaf6;
+}
+body.admin-mobile-tabs-enabled .admin-sales-panel,
+body.admin-mobile-tabs-enabled .admin-extra{
+  display:none!important;
+}
+body.admin-mobile-tabs-enabled .admin-mobile-content .admin-list{
+  max-height:none;
+}
 @media(max-width:800px){
-  body.admin-mobile-tabs-enabled .admin-panel{display:block}
   body.admin-mobile-tabs-enabled .admin-mobile-tabs:not([hidden]){
-    display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;
-    margin:16px 0 12px;width:100%;
+    gap:10px;
+    margin:16px auto 12px;
   }
   .admin-mobile-tabs>button{
-    display:flex;align-items:center;justify-content:center;
-    width:100%;min-width:0;min-height:84px;padding:13px 9px;
-    background:#fffaf6;color:#725a50;border:1px solid #dfcfc6;
-    border-radius:12px;font-size:13px;font-weight:700;line-height:1.35;
-    text-align:center;white-space:normal;overflow-wrap:anywhere;
-    box-shadow:0 2px 6px #6d4d380a;transition:background .18s,border-color .18s;
-  }
-  .admin-mobile-tabs>button.is-active{
-    background:#f0dfd9;border-color:#ba9186;color:#63463e;
-    box-shadow:inset 0 0 0 1px #c9a39b;
-  }
-  .admin-mobile-tabs>button:focus-visible{
-    outline:2px solid #b98e85;outline-offset:3px;
-  }
-  body.admin-mobile-tabs-enabled .admin-mobile-content:not([hidden]){
-    display:block;min-width:0;margin:0 0 24px;
+    min-height:84px;
+    padding:13px 9px;
+    font-size:13px;
   }
   body.admin-mobile-tabs-enabled .admin-mobile-content>section:not([hidden]){
-    display:block;min-width:0;width:100%;padding:19px;
-    background:#fffaf6;border:1px solid var(--line);
-    border-radius:14px;
+    padding:19px;
   }
-  body.admin-mobile-tabs-enabled .admin-sales-panel,
-  body.admin-mobile-tabs-enabled .admin-extra{display:none!important}
-  body.admin-mobile-tabs-enabled .admin-mobile-content .admin-list{max-height:none}
 }
 @media(max-width:375px){
   .admin-mobile-tabs>button{font-size:12px;min-height:82px;padding:11px 7px}
