@@ -95,3 +95,10 @@ a,button,input,select,textarea,[role="button"],.product-photo-link{-webkit-tap-h
 .admin-sales-card .sales-history-title{border-top:1px solid #e9ded7;padding-top:23px;margin-top:27px}
 @media(max-width:800px){.admin-sales-panel{grid-template-columns:1fr;gap:18px;margin:22px 0}.admin-sales-card{padding:19px}}
 @media(max-width:420px){.admin-sale-row,.admin-sale-history-row{gap:9px;padding:9px}.admin-sale-row>img{width:48px;height:61px}.admin-sales-card .sales-help{font-size:11px}}
+
+/* Eliminar elementos vendidos: botón discreto dentro de la lista del panel */
+.admin-sales-list .admin-sale-row{flex-wrap:wrap}
+.admin-sales-list .sale-remove-button{margin-left:auto;flex:none;min-height:33px;border:1px solid #d7b6b3;background:transparent;color:#9e6664;border-radius:7px;padding:7px 10px;font-size:11px;font-weight:700;transition:background .15s ease}
+.admin-sales-list .sale-remove-button:hover{background:#f7e9e7}
+.admin-sales-list .sale-remove-button:disabled{opacity:.45;cursor:default}
+@media(max-width:440px){.admin-sales-list .sale-remove-button{margin-left:67px}}
