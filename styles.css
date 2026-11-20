@@ -43,3 +43,21 @@ a,button,input,select,textarea,[role="button"],.product-photo-link{-webkit-tap-h
 
 /* Inventario independiente para cada color */
 .admin-color-list{display:flex;flex-direction:column;gap:9px}.admin-color-variant{display:flex;flex-wrap:wrap;align-items:center;gap:10px;padding:10px 12px;background:#fff;border:1px solid #e5d9d2;border-radius:10px}.admin-color-variant .variant-name{font-weight:700;min-width:85px;flex:1}.admin-color-variant label{display:flex;align-items:center;gap:7px;font-size:11px;color:#735d54}.admin-color-variant input[type="number"]{width:76px;height:35px;padding:5px 8px;border:1px solid #d8c6bc;border-radius:7px;font:700 13px Arial,sans-serif}.admin-color-variant input[type="checkbox"]{width:17px;height:17px;accent-color:#99716a}.admin-color-variant button{background:transparent;border:1px solid #e1cfbf;border-radius:50%;font-size:20px;width:28px;height:28px}.admin-color-availability{display:inline-flex;gap:4px;align-items:center;white-space:nowrap;margin:2px 4px;font-size:11px}.admin-color-availability .admin-color-dot{height:12px;width:12px}.admin-form #pStock[readonly]{background:#f0eae6;cursor:default}.color-swatch.is-sold{opacity:.48;cursor:not-allowed;position:relative}.color-swatch.is-sold:after{content:'';position:absolute;width:75%;height:2px;background:#69574e;transform:rotate(-40deg);pointer-events:none}.sold-colors-list{font-size:11px;color:#96776b;margin:6px 0}.sold-colors-list strong{font-weight:750;color:#a47774}.product-color-choices .sold-color-note{font-size:11px;color:#a37272}.detail-color-choices .color-label{font-size:13px}.product-color-choices .color-swatch{flex-shrink:0}
+
+/* M&J · Tarjetas con alturas uniformes, colores vendidos y etiqueta personalizada */
+#productGrid .product,#soldGrid .product{display:flex;flex-direction:column;height:100%;min-width:0}
+#productGrid .product-details,#soldGrid .product-details{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:10px;align-items:start;min-height:104px;margin-top:13px}
+#productGrid .product-title-wrap,#soldGrid .product-title-wrap{min-width:0;overflow-wrap:anywhere}
+#productGrid .product-title-wrap h3,#soldGrid .product-title-wrap h3{line-height:1.35;margin:0 0 7px}
+#productGrid .product-price-block,#soldGrid .product-price-block{align-items:flex-end;flex-basis:auto;min-width:0}
+#productGrid .product-price-block .product-stock,#soldGrid .product-price-block .product-stock{text-align:right;white-space:normal;max-width:116px}
+#productGrid .product-color-choices,#soldGrid .product-color-choices{align-content:flex-start;align-items:flex-start;min-height:75px;flex-grow:0;margin:8px 0 14px}
+#productGrid .product-add,#soldGrid .product-add{margin-top:auto;min-height:42px}
+#soldGrid .product-color-empty{min-height:75px}
+.product-photo .chip.sold-chip-color{background:var(--sold-tone,#9d8984)!important;color:var(--sold-ink,#fff)!important;border:1px solid #00000018;box-shadow:0 2px 7px #00000016}
+.product-photo .chip.sold-chip{max-width:calc(100% - 20px);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.product-photo .chip.unavailable-chip{background:#e9e1d9;color:#6d625b}
+.product-title-wrap .sold-variant-detail{display:flex;align-items:center;gap:5px;margin-top:6px;font-size:11px;font-weight:700;color:#866258;line-height:1.35;overflow-wrap:anywhere}
+.product-title-wrap .sold-color-dot{width:11px;height:11px;border-radius:50%;display:inline-block;flex:none;border:1px solid #0003}
+@media(max-width:760px){#productGrid .product-details,#soldGrid .product-details{grid-template-columns:1fr;gap:9px;min-height:124px}#productGrid .product-price-block,#soldGrid .product-price-block{align-items:flex-start;flex-basis:auto}#productGrid .product-price-block .product-stock,#soldGrid .product-price-block .product-stock{text-align:left;max-width:100%}#productGrid .product-color-choices,#soldGrid .product-color-choices{min-height:84px}}
+@media(min-width:761px) and (max-width:1060px){#productGrid .product-details,#soldGrid .product-details{grid-template-columns:1fr;min-height:110px}#productGrid .product-price-block,#soldGrid .product-price-block{align-items:flex-start}#productGrid .product-price-block .product-stock,#soldGrid .product-price-block .product-stock{text-align:left;max-width:100%}}
