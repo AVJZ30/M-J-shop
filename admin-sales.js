@@ -4,6 +4,7 @@ import {supabase,productColors,colorAvailable,productSold,availableCount,money,e
 const $=s=>document.querySelector(s);
 const form=$('#saleForm'),productInput=$('#saleProduct'),colorInput=$('#saleColor'),colorWrap=$('#saleColorWrap'),qtyInput=$('#saleQty');
 const saveBtn=$('#saveSaleBtn'),availability=$('#saleAvailability'),soldList=$('#soldProductsAdmin');
+const productTrigger=$('#saleProductTrigger'),productTriggerText=$('#saleProductTriggerText'),productChoices=$('#saleProductChoices');
 let inventory=[],sending=false,refreshTimer=null;
 
 function warn(message){availability.textContent=message;availability.classList.add('has-warning')}
@@ -11,6 +12,62 @@ function normal(message){availability.textContent=message;availability.classList
 function getSelected(){return inventory.find(p=>p.id===productInput.value)}
 function saleColor(){return productColors(getSelected()).find(c=>c.name===colorInput.value)}
 function isLegacy(colors){return colors.some(c=>!c.tracked)}
+
+function pickerImage(p){
+ return '<img class="sale-picker-thumb" src="'+esc(imageUrl(p.image_url))+'" alt="" loading="lazy" onerror="this.onerror=null;this.src=\'images/placeholder.svg\'">';
+}
+function pickerDetails(p){
+ const sold=productSold(p),units=availableCount(p);
+ return '<span class="sale-picker-copy"><strong>'+esc(p.name)+'</strong><small>Talla: '+esc(p.size)+' · '+money(p.price)+'</small><small class="sale-picker-status">'+(sold?'VENDIDO':units>0?units+' '+(units===1?'unidad disponible':'unidades disponibles'):'AGOTADO')+'</small></span>';
+}
+function renderProductPicker(){
+ const selected=getSelected();
+ productTriggerText.innerHTML=selected?pickerImage(selected)+pickerDetails(selected):'<span class="sale-picker-placeholder">Toca aquí para elegir una prenda</span>';
+ productChoices.innerHTML=inventory.length?inventory.map(p=>
+  '<button type="button" class="sale-product-option" role="option" data-sale-pick="'+esc(p.id)+'" aria-selected="'+(p.id===productInput.value)+'">'+pickerImage(p)+pickerDetails(p)+'</button>'
+ ).join(''):'<p class="sales-help" style="margin:10px">Todavía no hay prendas registradas.</p>';
+}
+function setPickerOpen(open,focusOption=false){
+ const expanded=!!open;
+ productChoices.hidden=!expanded;
+ productTrigger.setAttribute('aria-expanded',String(expanded));
+ if(expanded&&focusOption){
+  const options=[...productChoices.querySelectorAll('[data-sale-pick]')];
+  const focused=options.find(el=>el.dataset.salePick===productInput.value)||options[0];
+  focused?.focus();
+ }
+}
+productTrigger.addEventListener('click',()=>setPickerOpen(productChoices.hidden,true));
+productTrigger.addEventListener('keydown',e=>{
+ if(e.key==='ArrowDown'||e.key==='ArrowUp'){e.preventDefault();setPickerOpen(true,true)}
+ if(e.key==='Escape'){setPickerOpen(false)}
+});
+productChoices.addEventListener('click',e=>{
+ const option=e.target.closest('[data-sale-pick]');
+ if(!option)return;
+ productInput.value=option.dataset.salePick;
+ productInput.dispatchEvent(new Event('change',{bubbles:true}));
+ setPickerOpen(false);
+ productTrigger.focus();
+});
+productChoices.addEventListener('keydown',e=>{
+ const options=[...productChoices.querySelectorAll('[data-sale-pick]')];
+ const index=options.indexOf(document.activeElement);
+ if(e.key==='Escape'){e.preventDefault();setPickerOpen(false);productTrigger.focus()}
+ else if(e.key==='ArrowDown'||e.key==='ArrowUp'||e.key==='Home'||e.key==='End'){
+  e.preventDefault();
+  if(!options.length)return;
+  const next=e.key==='Home'?0:e.key==='End'?options.length-1:e.key==='ArrowDown'?(index+1)%options.length:(index<=0?options.length-1:index-1);
+  options[next]?.focus();
+ }
+});
+document.addEventListener('pointerdown',e=>{
+ if(!e.target.closest('.sale-product-picker'))setPickerOpen(false);
+});
+document.addEventListener('keydown',e=>{
+ if(e.key==='Escape'&&!productChoices.hidden){setPickerOpen(false);productTrigger.focus()}
+});
+
 
 function updateSaleColor(){
  const p=getSelected(),colors=productColors(p),previous=colorInput.value;
@@ -48,6 +105,9 @@ function renderProductOptions(){
  const previous=productInput.value;
  productInput.innerHTML='<option value="">Selecciona una prenda</option>'+inventory.map(p=>'<option value="'+esc(p.id)+'">'+esc(p.name)+' · Talla '+esc(p.size)+(productSold(p)?' · VENDIDO':'')+'</option>').join('');
  if(inventory.some(p=>p.id===previous))productInput.value=previous;
+ else productInput.value='';
+ renderProductPicker();
+ setPickerOpen(false);
  updateSaleColor();
  renderSoldInventory();
 }
@@ -141,7 +201,7 @@ async function loadEverything(){
  await loadProducts();
 }
 
-productInput.addEventListener('change',updateSaleColor);
+productInput.addEventListener('change',()=>{renderProductPicker();updateSaleColor()});
 colorInput.addEventListener('change',updateSaleAvailability);
 qtyInput.addEventListener('input',updateSaleAvailability);
 form.addEventListener('submit',async event=>{
