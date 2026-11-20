@@ -4,7 +4,7 @@ import {supabase,productColors,colorAvailable,productSold,availableCount,money,e
 const $=s=>document.querySelector(s);
 const form=$('#saleForm'),productInput=$('#saleProduct'),colorInput=$('#saleColor'),colorWrap=$('#saleColorWrap'),qtyInput=$('#saleQty');
 const saveBtn=$('#saveSaleBtn'),availability=$('#saleAvailability'),history=$('#salesHistory'),soldList=$('#soldProductsAdmin');
-let inventory=[],sending=false,refreshTimer=null;
+let inventory=[],sending=false,refreshTimer=null,salesConfigured=false;
 
 function warn(message){availability.textContent=message;availability.classList.add('has-warning')}
 function normal(message){availability.textContent=message;availability.classList.remove('has-warning')}
@@ -38,6 +38,7 @@ function updateSaleAvailability(){
  else if(!available)problem='No quedan unidades disponibles.';
  else if(!Number.isInteger(qty)||qty<1)problem='Indica cuántas unidades se vendieron.';
  else if(qty>available)problem='Solo hay '+available+' unidades disponibles para esta selección.';
+ if(!salesConfigured&&!problem)problem='Activa el registro de ventas ejecutando el SQL indicado debajo del historial.';
  saveBtn.disabled=sending||!!problem;
  qtyInput.max=Math.max(1,available);
  if(problem)warn(problem);
@@ -77,10 +78,14 @@ async function loadSales(){
   .select('id,product_name,color_name,color_hex,qty,unit_price,sold_at')
   .order('sold_at',{ascending:false}).limit(80);
  if(error){
+  salesConfigured=false;
   console.warn('Historial de ventas no disponible',error);
   history.innerHTML='<p class="sales-help">Para activar el registro de ventas, ejecuta <a href="https://github.com/AVJZ30/M-J-shop/blob/main/supabase/REGISTRAR_VENTAS.sql" target="_blank" rel="noopener noreferrer">REGISTRAR_VENTAS.sql</a> en Supabase.</p>';
+  updateSaleAvailability();
   return;
  }
+ salesConfigured=true;
+ updateSaleAvailability();
  history.innerHTML=data?.length?data.map(sale=>{
   const stamp=new Date(sale.sold_at).toLocaleString('es-EC',{dateStyle:'medium',timeStyle:'short',timeZone:'America/Guayaquil'});
   const color=sale.color_name?'<span class="sale-variant"><span class="sale-color-dot" style="background:'+(/^#[0-9A-F]{6}$/i.test(sale.color_hex||'')?sale.color_hex:'#ddd')+'"></span>'+esc(sale.color_name)+'</span>':'Sin color registrado';
