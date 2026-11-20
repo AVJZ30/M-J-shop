@@ -85,7 +85,6 @@ form.addEventListener('submit',async event=>{
  event.preventDefault();if(sending)return;
  const p=getSelected(),color=colorWrap.hidden?null:colorInput.value,qty=Number(qtyInput.value);
  updateSaleAvailability();if(saveBtn.disabled||!p)return;
- if(!confirm('¿Registrar la venta de '+qty+' '+(qty===1?'unidad':'unidades')+' de '+p.name+(color?' · '+color:'')+'? Se descontará del inventario.'))return;
  sending=true;saveBtn.disabled=true;
  try{
   const {data,error}=await supabase.rpc('mj_register_sale',{p_product_id:p.id,p_color:color,p_qty:qty});
