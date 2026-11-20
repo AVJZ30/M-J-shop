@@ -1,31 +1,9 @@
--- M&J Shop · Registro de ventas desde el panel de administración.
+-- M&J Shop · Marcar unidades y colores vendidos desde administración.
 -- Ejecutar en SQL Editor del MISMO proyecto Supabase de la tienda.
--- No borra productos ni ventas existentes. Repetible sin perder datos.
+-- No borra productos, no crea historial y no cambia inventario al instalarse.
 
-create table if not exists public.mj_sales (
-  id uuid primary key default gen_random_uuid(),
-  product_id uuid references public.mj_products(id) on delete set null,
-  product_name text not null,
-  color_name text,
-  color_hex text,
-  qty integer not null check (qty between 1 and 999999),
-  unit_price numeric(10,2) not null check (unit_price >= 0),
-  sold_at timestamptz not null default now(),
-  recorded_by uuid references auth.users(id) on delete set null
-);
-
-create index if not exists mj_sales_sold_at_idx on public.mj_sales(sold_at desc);
-alter table public.mj_sales enable row level security;
-revoke all on public.mj_sales from anon, authenticated;
-grant select on public.mj_sales to authenticated;
-
-drop policy if exists "mj admin reads sales" on public.mj_sales;
-create policy "mj admin reads sales"
-  on public.mj_sales for select to authenticated
-  using ((select public.mj_is_admin()));
-
--- Descuenta el inventario y registra la venta en UNA transacción.
--- Ninguna venta la registran los clientes; solo un administrador autenticado.
+-- Registra una venta descontando inventario en una transacción.
+-- No crea tablas ni historiales. Solo pueden ejecutarlo administradores autenticados.
 create or replace function public.mj_register_sale(
   p_product_id uuid,
   p_color text,
@@ -41,9 +19,6 @@ declare
   v_remaining integer;
   v_color_sold boolean := false;
   v_all_sold boolean := false;
-  v_sale_id uuid;
-  v_color_name text := null;
-  v_color_hex text := null;
 begin
   if not public.mj_is_admin() then
     raise exception 'Solo la administradora puede registrar ventas' using errcode = '42501';
@@ -86,8 +61,6 @@ begin
 
     if not found then raise exception 'Ese color ya no pertenece a esta prenda'; end if;
 
-    v_color_name := v_color->>'name';
-    v_color_hex := v_color->>'hex';
     v_remaining := (v_color->>'stock')::integer;
 
     if coalesce((v_color->>'sold')::boolean, false) then
@@ -136,16 +109,7 @@ begin
     where id = v_product.id;
   end if;
 
-  insert into public.mj_sales(
-    product_id, product_name, color_name, color_hex,
-    qty, unit_price, recorded_by
-  ) values (
-    v_product.id, v_product.name, v_color_name, v_color_hex,
-    p_qty, v_product.price, auth.uid()
-  ) returning id into v_sale_id;
-
   return jsonb_build_object(
-    'sale_id', v_sale_id,
     'remaining_stock', v_remaining,
     'product_sold', v_all_sold,
     'color_sold', v_color_sold
