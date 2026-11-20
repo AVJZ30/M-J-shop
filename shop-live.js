@@ -10,7 +10,7 @@ function pickedColor(p){const options=productColors(p);const current=selectedCol
 function productColorUI(p){
  const colors=productColors(p);if(!colors.length)return '<div class="product-color-choices product-color-empty" aria-hidden="true"></div>';
  const name=pickedColor(p),soldColors=colors.filter(c=>c.sold).map(c=>c.name);
- return '<div class="product-color-choices" data-color-parent="'+p.id+'"><span class="color-label">Colores · <span class="color-selected-name">'+esc(name)+'</span></span>'+colorSwatches(p,name)+(soldColors.length?'<span class="sold-color-note">No disponible: '+esc(soldColors.join(', '))+'</span>':'')+'</div>';
+ return '<div class="product-color-choices" data-color-parent="'+p.id+'"><span class="color-label">Colores · <span class="color-selected-name">'+esc(name)+'</span></span>'+colorSwatches(p,name)+'</div>';
 }
 const soldOut=p=>productSold(p);
 const status=p=>!productAvailable(p);
@@ -26,7 +26,7 @@ function productCard(p,soldOnlyColor='',soldSection=false){
  const selectedSold=colors.find(c=>c.name===soldOnlyColor);
  const badgeColor=selectedSold||(sold&&colors.length===1?colors[0]:null);
  const badge=sold?'<span class="chip sold-chip'+(badgeColor?' sold-chip-color':'')+'"'+soldBadgeStyle(badgeColor)+'>VENDIDO'+(soldOnlyColor?' · '+esc(soldOnlyColor):'')+'</span>':unavailable?'<span class="chip unavailable-chip">AGOTADO</span>':'';
- const detail=sold?'<small class="sold-variant-detail">'+(soldOnlyColor?'<span class="sold-color-dot" style="background:'+selectedSold.hex+'"></span>Color vendido: '+esc(soldOnlyColor):colors.length?'Colores: '+esc(colors.map(c=>c.name).join(', ')):'Prenda vendida')+'</small>':'';
+ const actuallySold=colors.filter(c=>c.sold);const detail=sold?'<small class="sold-variant-detail">'+(soldOnlyColor?'<span class="sold-color-dot" style="background:'+selectedSold.hex+'"></span>Color vendido: '+esc(soldOnlyColor):colors.length?'Colores: '+esc(colors.map(c=>c.name).join(', ')):'Prenda vendida')+'</small>':actuallySold.length?'<small class="sold-variant-detail">'+(actuallySold.length===1?'Color vendido: ':'Colores vendidos: ')+esc(actuallySold.map(c=>c.name).join(', '))+'</small>':'';
  const availability=sold?'Vendido'+(soldOnlyColor?' · '+esc(soldOnlyColor):''):unavailable?'Sin unidades':'Disponibles: '+availableCount(p)+' unidades';
  return '<article class="product'+(sold?' sold-product':'')+'"><div class="product-photo"><a class="product-photo-link" href="producto.html?id='+encodeURIComponent(p.id)+'"><img loading="lazy" src="'+esc(imageUrl(p.image_url))+'" alt="'+esc(p.name)+'" onerror="this.onerror=null;this.src=\'images/placeholder.svg\'"></a>'+badge+'</div><div class="product-details"><div class="product-title-wrap"><h3><a href="producto.html?id='+encodeURIComponent(p.id)+'">'+esc(p.name)+'</a></h3><small>Talla: '+esc(p.size)+'</small>'+detail+'</div><div class="product-price-block"><strong class="product-price">'+money(p.price)+'</strong><span class="product-stock">'+availability+'</span></div></div>'+(sold?'<div class="product-color-choices product-color-empty" aria-hidden="true"></div>':productColorUI(p))+'<button class="product-add" data-add="'+p.id+'" '+(sold||unavailable?'disabled':'')+'>'+(sold?'Vendido':unavailable?'Agotado':'Agregar a mi carrito +')+'</button></article>';
 }
