@@ -3,8 +3,8 @@ import {supabase,productColors,colorAvailable,productSold,availableCount,money,e
 // Módulo independiente: se añade al panel existente sin reemplazar sus funciones.
 const $=s=>document.querySelector(s);
 const form=$('#saleForm'),productInput=$('#saleProduct'),colorInput=$('#saleColor'),colorWrap=$('#saleColorWrap'),qtyInput=$('#saleQty');
-const saveBtn=$('#saveSaleBtn'),availability=$('#saleAvailability'),history=$('#salesHistory'),soldList=$('#soldProductsAdmin');
-let inventory=[],sending=false,refreshTimer=null,salesConfigured=false;
+const saveBtn=$('#saveSaleBtn'),availability=$('#saleAvailability'),soldList=$('#soldProductsAdmin');
+let inventory=[],sending=false,refreshTimer=null;
 
 function warn(message){availability.textContent=message;availability.classList.add('has-warning')}
 function normal(message){availability.textContent=message;availability.classList.remove('has-warning')}
@@ -38,7 +38,6 @@ function updateSaleAvailability(){
  else if(!available)problem='No quedan unidades disponibles.';
  else if(!Number.isInteger(qty)||qty<1)problem='Indica cuántas unidades se vendieron.';
  else if(qty>available)problem='Solo hay '+available+' unidades disponibles para esta selección.';
- if(!salesConfigured&&!problem)problem='Activa el registro de ventas ejecutando el SQL indicado debajo del historial.';
  saveBtn.disabled=sending||!!problem;
  qtyInput.max=Math.max(1,available);
  if(problem)warn(problem);
@@ -73,30 +72,10 @@ async function loadProducts(){
  inventory=data||[];renderProductOptions();
 }
 
-async function loadSales(){
- const {data,error}=await supabase.from('mj_sales')
-  .select('id,product_name,color_name,color_hex,qty,unit_price,sold_at')
-  .order('sold_at',{ascending:false}).limit(80);
- if(error){
-  salesConfigured=false;
-  console.warn('Historial de ventas no disponible',error);
-  history.innerHTML='<p class="sales-help">Para activar el registro de ventas, ejecuta <a href="https://github.com/AVJZ30/M-J-shop/blob/main/supabase/REGISTRAR_VENTAS.sql" target="_blank" rel="noopener noreferrer">REGISTRAR_VENTAS.sql</a> en Supabase.</p>';
-  updateSaleAvailability();
-  return;
- }
- salesConfigured=true;
- updateSaleAvailability();
- history.innerHTML=data?.length?data.map(sale=>{
-  const stamp=new Date(sale.sold_at).toLocaleString('es-EC',{dateStyle:'medium',timeStyle:'short',timeZone:'America/Guayaquil'});
-  const color=sale.color_name?'<span class="sale-variant"><span class="sale-color-dot" style="background:'+(/^#[0-9A-F]{6}$/i.test(sale.color_hex||'')?sale.color_hex:'#ddd')+'"></span>'+esc(sale.color_name)+'</span>':'Sin color registrado';
-  return '<div class="admin-sale-history-row"><div><strong>'+esc(sale.product_name)+'</strong><small>'+color+'</small><small>'+esc(stamp)+'</small></div><div class="sale-history-amount"><strong>'+sale.qty+' '+(sale.qty===1?'unidad':'unidades')+'</strong><small>'+money(Number(sale.unit_price)*sale.qty)+'</small></div></div>';
- }).join(''):'<p class="sales-help">Todavía no hay ventas registradas desde esta sección.</p>';
-}
-
 async function loadEverything(){
  const {data:{user},error}=await supabase.auth.getUser();if(error||!user)return;
  const {data:allowed}=await supabase.rpc('mj_is_admin');if(!allowed)return;
- await Promise.all([loadProducts(),loadSales()]);
+ await loadProducts();
 }
 
 productInput.addEventListener('change',updateSaleColor);
@@ -111,12 +90,12 @@ form.addEventListener('submit',async event=>{
  try{
   const {data,error}=await supabase.rpc('mj_register_sale',{p_product_id:p.id,p_color:color,p_qty:qty});
   if(error)throw error;
-  await Promise.all([loadProducts(),loadSales()]);
+  await loadProducts();
   qtyInput.value='1';updateSaleAvailability();
   window.dispatchEvent(new Event('mj:sale-recorded'));
   const statusText='Venta registrada correctamente. '+(data?.product_sold?'La prenda pasó a VENDIDO. ':data?.color_sold?'Ese color pasó a VENDIDO. ':'Inventario actualizado. ');
   const toast=$('#toast');toast.textContent=statusText;toast.classList.add('show');setTimeout(()=>toast.classList.remove('show'),4300);
- }catch(e){console.error('Error registrando venta',e);warn(e.message||'No fue posible registrar la venta.')}
+ }catch(e){console.error('Error registrando venta',e);warn(e.code==='PGRST202'||e.code==='42883'?'Primero ejecuta REGISTRAR_VENTAS.sql en Supabase para activar esta función.':(e.message||'No fue posible registrar la venta.'))}
  finally{sending=false;updateSaleAvailability()}
 });
 
@@ -127,6 +106,6 @@ const observer=new MutationObserver(()=>{
 observer.observe($('#adminList'),{childList:true});
 supabase.auth.onAuthStateChange((event)=>{
  if(event==='SIGNED_IN')setTimeout(()=>loadEverything(),0);
- if(event==='SIGNED_OUT'){inventory=[];renderProductOptions();history.innerHTML=''}
+ if(event==='SIGNED_OUT'){inventory=[];renderProductOptions();}
 });
 await loadEverything();
