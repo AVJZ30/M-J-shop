@@ -42,7 +42,7 @@ function updateSaleAvailability(){
  saveBtn.disabled=sending||!!problem;
  qtyInput.max=Math.max(1,available);
  if(problem)warn(problem);
- else normal('Disponibles: '+available+' unidades · '+money(p.price)+' por unidad · Venta: '+money(qty*Number(p.price)));
+ else normal('Disponibles: '+available+' '+(available===1?'unidad':'unidades')+' · '+money(p.price)+' por unidad · Venta: '+money(qty*Number(p.price)));
 }
 
 function renderProductOptions(){
@@ -114,7 +114,8 @@ form.addEventListener('submit',async event=>{
   await Promise.all([loadProducts(),loadSales()]);
   qtyInput.value='1';updateSaleAvailability();
   window.dispatchEvent(new Event('mj:sale-recorded'));
-  normal('Venta registrada correctamente. '+(data?.color_sold?'Ese color pasó a VENDIDO. ':data?.product_sold?'La prenda pasó a VENDIDO. ':'Inventario actualizado. ')+'Las existencias se reflejarán en la tienda.');
+  const statusText='Venta registrada correctamente. '+(data?.product_sold?'La prenda pasó a VENDIDO. ':data?.color_sold?'Ese color pasó a VENDIDO. ':'Inventario actualizado. ');
+  const toast=$('#toast');toast.textContent=statusText;toast.classList.add('show');setTimeout(()=>toast.classList.remove('show'),4300);
  }catch(e){console.error('Error registrando venta',e);warn(e.message||'No fue posible registrar la venta.')}
  finally{sending=false;updateSaleAvailability()}
 });
