@@ -67,3 +67,31 @@ a,button,input,select,textarea,[role="button"],.product-photo-link{-webkit-tap-h
 .detail-sold-colors>strong{font-size:12px}
 .detail-sold-colors .sold-detail-color{display:inline-flex;gap:5px;align-items:center;border:1px solid #e5d7ce;border-radius:100px;padding:3px 9px;background:#fff9f5;font-size:12px}
 .detail-sold-colors .sold-color-dot{display:inline-block;width:12px;height:12px;border-radius:50%;flex:none;border:1px solid #0003}
+
+/* M&J · Sección adicional de ventas (no modifica las tarjetas ni formularios actuales) */
+.admin-sales-panel{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.25fr);gap:30px;align-items:start;margin:30px 0}
+.admin-sales-card{min-width:0;background:#fffaf6;border:1px solid var(--line);border-radius:14px;padding:24px}
+.admin-sales-card h2{font:400 27px 'Playfair Display',serif;margin:10px 0 11px}
+.admin-sales-card .eyebrow{display:inline-block;margin-bottom:4px}
+.admin-sales-card .sales-help{font-size:12px;line-height:1.7;color:#927d73;margin:7px 0 18px}
+.admin-sales-card .sales-help a{color:#8c675f;text-decoration:underline;text-underline-offset:3px}
+.admin-sales-card .admin-form label{margin:14px 0}
+.admin-sales-card .primary{width:100%;margin-top:10px}
+.admin-sales-card .primary:disabled{opacity:.52;cursor:not-allowed;transform:none}
+.admin-sales-card .sales-availability{font-size:12px;line-height:1.6;color:#806a5c;background:#f5ebe5;padding:12px 13px;border-radius:8px;min-height:48px;margin:14px 0}
+.admin-sales-card .sales-availability.has-warning{color:#9d695a;background:#f7eeeb}
+.admin-sales-list{display:grid;gap:10px;max-height:355px;overflow:auto;padding-right:3px}
+.admin-sale-row,.admin-sale-history-row{display:flex;gap:12px;align-items:center;min-width:0;border:1px solid #ecdfd7;background:#fffdfb;border-radius:10px;padding:11px}
+.admin-sale-row>img{width:55px;height:68px;flex:none;object-fit:cover;border-radius:6px;background:#f3e8e2}
+.admin-sale-row>div,.admin-sale-history-row>div:first-child{min-width:0;display:flex;flex:1;flex-direction:column;gap:5px}
+.admin-sale-row strong,.admin-sale-history-row strong{font-size:13px;font-weight:700;line-height:1.4;overflow-wrap:anywhere}
+.admin-sale-row small,.admin-sale-history-row small{color:#967f76;font-size:11px}
+.admin-sale-row .sale-status{display:flex;flex-wrap:wrap;align-items:center;gap:5px;font-size:11px;color:#916c62;line-height:1.45}
+.admin-sales-card .sale-color-dot{display:inline-block;vertical-align:middle;flex:none;width:13px;height:13px;border:1px solid #0002;border-radius:50%}
+.admin-sale-history-row{align-items:flex-start}
+.admin-sale-history-row .sale-variant{display:inline-flex;align-items:center;gap:6px}
+.admin-sale-history-row .sale-history-amount{text-align:right;display:flex;flex-direction:column;align-items:flex-end;gap:5px;flex:none;max-width:95px}
+.admin-sale-history-row .sale-history-amount strong{white-space:nowrap}
+.admin-sales-card .sales-history-title{border-top:1px solid #e9ded7;padding-top:23px;margin-top:27px}
+@media(max-width:800px){.admin-sales-panel{grid-template-columns:1fr;gap:18px;margin:22px 0}.admin-sales-card{padding:19px}}
+@media(max-width:420px){.admin-sale-row,.admin-sale-history-row{gap:9px;padding:9px}.admin-sale-row>img{width:48px;height:61px}.admin-sales-card .sales-help{font-size:11px}}
